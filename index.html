@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>留学身份时间线</title>
+<meta name="description" content="给在美中国留学生的 OPT / STEM OPT / H-1B 身份时间线：剩余天数、失业天数、抽签中签率估算，一键导出日历提醒。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <span class="brand">留学身份时间线</span>
+    <span class="tag">OPT · STEM OPT · H-1B</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>你的身份，<br>还剩多少天？</h1>
+    <p class="lede">填几个日期，看清 OPT、STEM OPT、宽限期和 H-1B 抽签的每一个截止日。数据只存在你自己的浏览器里，不上传。</p>
+  </section>
+
+  <section class="card" aria-labelledby="f-title">
+    <h2 id="f-title" class="h2">你的情况</h2>
+    <form id="form" autocomplete="off">
+      <label class="field">
+        <span>课程结束日期 <em>Program End Date，见 I-20</em></span>
+        <input type="date" name="programEnd" required>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" name="isStem">
+        <span>我的专业在 STEM 清单内（可延期 24 个月）</span>
+      </label>
+
+      <fieldset class="seg">
+        <legend>OPT 工卡（EAD）</legend>
+        <label><input type="radio" name="hasEad" value="no" checked><span>还没拿到</span></label>
+        <label><input type="radio" name="hasEad" value="yes"><span>已经拿到</span></label>
+      </fieldset>
+
+      <div class="grid2" data-show="ead">
+        <label class="field">
+          <span>工卡开始日</span>
+          <input type="date" name="eadStart">
+        </label>
+        <label class="field">
+          <span>工卡结束日 <em>不填按 12 个月算</em></span>
+          <input type="date" name="eadEnd">
+        </label>
+      </div>
+
+      <div data-show="stem">
+        <label class="check">
+          <input type="checkbox" name="onStem">
+          <span>我已经在 STEM OPT 延期期间</span>
+        </label>
+        <label class="field" data-show="onstem">
+          <span>STEM OPT 结束日 <em>不填按 24 个月算</em></span>
+          <input type="date" name="stemEnd">
+        </label>
+      </div>
+
+      <div class="grid2" data-show="ead">
+        <label class="field">
+          <span>已累计失业天数</span>
+          <input type="number" name="unemployedDays" min="0" max="999" inputmode="numeric" value="0">
+        </label>
+        <label class="field">
+          <span>Offer 的工资等级 <em>不确定就问 HR</em></span>
+          <select name="wageLevel">
+            <option value="1">Level I（入门）</option>
+            <option value="2">Level II</option>
+            <option value="3">Level III</option>
+            <option value="4">Level IV</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="check" data-show="ead">
+        <input type="checkbox" name="h1bFiled">
+        <span>已中签，雇主已递交 H-1B 申请（适用 Cap-gap）</span>
+      </label>
+    </form>
+  </section>
+
+  <section id="result" class="result" hidden aria-live="polite">
+    <div id="alert" class="alert" hidden></div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-k">当前阶段</span>
+        <strong id="s-phase" class="stat-v small"></strong>
+      </div>
+      <div class="stat">
+        <span class="stat-k" id="s-days-k">身份剩余</span>
+        <strong class="stat-v"><span id="s-days"></span><small>天</small></strong>
+        <span class="stat-n" id="s-days-n"></span>
+      </div>
+      <div class="stat" id="s-unemploy-box">
+        <span class="stat-k">失业还能用</span>
+        <strong class="stat-v"><span id="s-unemploy"></span><small>天</small></strong>
+        <span class="stat-n" id="s-unemploy-n"></span>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="row-between">
+        <h2 class="h2">时间线</h2>
+        <button type="button" id="ics" class="btn ghost">导出到日历</button>
+      </div>
+      <ol id="timeline" class="timeline"></ol>
+    </section>
+
+    <section class="card" id="lottery">
+      <h2 class="h2">H-1B 中签率估算</h2>
+      <p class="muted" id="l-intro"></p>
+      <div class="odds">
+        <div><span class="stat-k">单次</span><strong id="l-one" class="odds-v"></strong></div>
+        <div><span class="stat-k" id="l-all-k">累计</span><strong id="l-all" class="odds-v red"></strong></div>
+      </div>
+      <div class="bars" id="l-bars"></div>
+      <p class="fine">按 DHS 在加权抽签最终规则中的估算（基于 FY2020–2024 数据）。硕士名额、雇主是否注册、当年注册人数都会影响实际结果。<a href="https://www.federalregister.gov/documents/2025/12/29/2025-23853/weighted-selection-process-for-registrants-and-petitioners-seeking-to-file-cap-subject-h-1b" target="_blank" rel="noopener">规则原文</a></p>
+    </section>
+  </section>
+
+  <section class="card pro">
+    <span class="pill">付费版 · 即将推出</span>
+    <h2 class="h2">政策一变，第一时间告诉你</h2>
+    <ul class="ticks">
+      <li>OPT / H-1B 政策变动，按你的时间线判断影响，邮件即时提醒</li>
+      <li>关键截止日前 30 / 7 / 1 天提醒</li>
+      <li>移民律师复核你的时间线</li>
+    </ul>
+    <form id="waitlist" class="wl">
+      <input type="email" name="email" placeholder="你的邮箱" required aria-label="邮箱">
+      <button type="submit" class="btn">我想要，开放时通知我</button>
+    </form>
+    <p id="wl-msg" class="muted" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="p-title">
+    <h2 id="p-title" class="h2">政策动态</h2>
+    <p class="muted">更新于 <span id="p-updated"></span></p>
+    <ol id="policy" class="policy"></ol>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>仅供参考，不构成法律意见，请以 USCIS / 学校 DSO 为准。</strong></p>
+    <p>本工具不收集、不上传你的任何信息；填写的内容只保存在当前浏览器。</p>
+  </div>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
