@@ -36,6 +36,7 @@ a { color: var(--red); }
 .hero { padding: 48px 0 28px; }
 .hero h1 { font: 900 clamp(36px, 9vw, 60px)/1.15 var(--serif); margin: 0 0 16px; letter-spacing: -.01em; }
 .lede { font-size: 17px; color: var(--ink-2); margin: 0; max-width: 34em; }
+.demo-link { display: inline-block; margin-top: 14px; font-weight: 500; color: var(--red); text-decoration: none; border-bottom: 1px solid currentColor; }
 
 .card {
   background: var(--card);

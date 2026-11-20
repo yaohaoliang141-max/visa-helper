@@ -74,7 +74,7 @@ let current = null;
 function render() {
   const v = readForm();
   toggle(v);
-  store(false, v);
+  if (!demo) store(false, v);
 
   const now = getToday();
   const input = {
@@ -232,11 +232,19 @@ async function onWaitlist(e) {
   }
 }
 
-const saved = store(true);
+// ?demo 用示例数据展示（不写入本地存储），方便第一次来的人和截图
+const DEMO = {
+  programEnd: '2026-05-15', isStem: true, hasEad: true, eadStart: '2026-06-01', eadEnd: '',
+  onStem: false, stemEnd: '', unemployedDays: '23', wageLevel: '1', h1bFiled: false,
+};
+let demo = new URLSearchParams(location.search).has('demo');
+const saved = demo ? DEMO : store(true);
 if (saved) writeForm(saved);
+if (demo) form.addEventListener('input', () => { demo = false; history.replaceState(null, '', location.pathname); }, { once: true });
 form.addEventListener('input', render);
 form.addEventListener('change', render);
 $('#ics').addEventListener('click', exportIcs);
 $('#waitlist').addEventListener('submit', onWaitlist);
 renderPolicy();
 render();
+if (demo && location.hash) document.querySelector(location.hash)?.scrollIntoView();
